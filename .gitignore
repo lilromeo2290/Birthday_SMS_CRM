@@ -1,0 +1,13 @@
+node_modules/
+.next/
+*.log
+prisma/*.db
+prisma/*.db-journal
+.vercel/
+.env
+.env.local
+.turbo/
+.DS_Store
+*.tsbuildinfo
+skills/
+agent-ctx/

@@ -1,0 +1,123 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String
+  password      String
+  role          String   @default("staff") // super_admin, marketing_admin, staff
+  isActive      Boolean  @default(true)
+  lastLogin     DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  auditLogs     AuditLog[]
+}
+
+model Client {
+  id                String   @id @default(cuid())
+  clientId          String   @unique // Auto-generated like CLT-001
+  fullName          String
+  gender            String   @default("not_specified") // male, female, not_specified
+  dateOfBirth       DateTime
+  mobileNumber      String
+  alternativeNumber String?
+  emailAddress      String?
+  residentialAddress String?
+  occupation        String?
+  customerCategory  String   @default("general") // premium, regular, general, vip
+  registrationDate  DateTime @default(now())
+  notes             String?
+  status            String   @default("active") // active, inactive
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  smsLogs           SmsLog[]
+}
+
+model SmsTemplate {
+  id          String   @id @default(cuid())
+  name        String
+  content     String
+  isActive    Boolean  @default(true)
+  isDefault   Boolean  @default(false)
+  campaign    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  smsLogs     SmsLog[]
+}
+
+model SmsLog {
+  id            String   @id @default(cuid())
+  clientId      String
+  client        Client   @relation(fields: [clientId], references: [id])
+  templateId    String?
+  template      SmsTemplate? @relation(fields: [templateId], references: [id])
+  recipientName String
+  recipientPhone String
+  message       String
+  status        String   @default("pending") // pending, sent, delivered, failed
+  provider      String   @default("arkesel") // arkesel, hubtel, africas_talking
+  providerResponse String?
+  sentAt        DateTime @default(now())
+  deliveredAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model SmsGatewayConfig {
+  id              String   @id @default(cuid())
+  provider        String   @unique // arkesel, hubtel, africas_talking
+  isActive        Boolean  @default(false)
+  apiKey          String?
+  apiSecret       String?
+  senderId        String?
+  apiUrl          String?
+  additionalConfig String? // JSON string for extra config
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model AuditLog {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  action        String
+  module        String
+  details       String?
+  ipAddress     String?
+  createdAt     DateTime @default(now())
+}
+
+model Notification {
+  id            String   @id @default(cuid())
+  type          String   // low_credits, failed_delivery, upcoming_birthday, system_error
+  title         String
+  message       String
+  isRead        Boolean  @default(false)
+  createdAt     DateTime @default(now())
+}
+
+model SystemSetting {
+  id            String   @id @default(cuid())
+  key           String   @unique
+  value         String
+  updatedAt     DateTime @updatedAt
+}
+
+model BirthdaySmsTracker {
+  id            String   @id @default(cuid())
+  clientId      String
+  year          Int
+  sentAt        DateTime @default(now())
+  
+  @@unique([clientId, year])
+}
