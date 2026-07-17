@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Next.js
+.next/
+
+# Database
+db/
+*.db
+*.db-journal
+
+# Environment
+.env
+
+# Logs
+*.log
+dev.log
+server.log
+
+# Uploads
+upload/
+
+# IDE
+.vscode/
+.idea/
+
+# Misc
+.zscripts/
+skills/
+examples/
+mini-services/
+download/*.png
+Caddyfile
